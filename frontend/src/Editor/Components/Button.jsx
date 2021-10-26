@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { resolveReferences, resolveWidgetFieldValue } from '@/_helpers/utils';
 var tinycolor = require('tinycolor2');
 
-export const Button = function Button({ id, width, height, component, onComponentClick, currentState }) {
-  console.log('currentState', currentState);
-
+export const Button = function Button({ width, height, component, currentState, fireEvent }) {
   const [loadingState, setLoadingState] = useState(false);
 
   useEffect(() => {
@@ -19,11 +17,13 @@ export const Button = function Button({ id, width, height, component, onComponen
   const text = component.definition.properties.text.value;
   const backgroundColor = component.definition.styles.backgroundColor.value;
   const color = component.definition.styles.textColor.value;
+  const borderRadius = component.definition.styles.borderRadius?.value ?? 3; // using 2 for backward compatibility
   const widgetVisibility = component.definition.styles?.visibility?.value ?? true;
   const disabledState = component.definition.styles?.disabledState?.value ?? false;
 
   const parsedDisabledState =
     typeof disabledState !== 'boolean' ? resolveWidgetFieldValue(disabledState, currentState) : disabledState;
+  const parsedBorderRadius = typeof borderRadius !== 'number' ? resolveWidgetFieldValue(borderRadius, currentState) : borderRadius;
   let parsedWidgetVisibility = widgetVisibility;
 
   try {
@@ -35,6 +35,7 @@ export const Button = function Button({ id, width, height, component, onComponen
   const computedStyles = {
     backgroundColor,
     color,
+    borderRadius: `${parsedBorderRadius}px`,
     width,
     height,
     display: parsedWidgetVisibility ? '' : 'none',
@@ -48,10 +49,10 @@ export const Button = function Button({ id, width, height, component, onComponen
       style={computedStyles}
       onClick={(event) => {
         event.stopPropagation();
-        onComponentClick(id, component);
+        fireEvent('onClick');
       }}
     >
-      {text}
+      {resolveReferences(text, currentState)}
     </button>
   );
 };

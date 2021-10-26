@@ -24,6 +24,29 @@ export const EventManager = ({
     return { name: action.name, value: action.id };
   });
 
+  let alertTypes = [
+    {
+      name: 'Info',
+      id: 'info',
+    },
+    {
+      name: 'Success',
+      id: 'success',
+    },
+    {
+      name: 'Warning',
+      id: 'warning',
+    },
+    {
+      name: 'Danger',
+      id: 'error',
+    },
+  ];
+
+  let alertOptions = alertTypes.map((alert) => {
+    return { name: alert.name, value: alert.id };
+  });
+
   excludeEvents = excludeEvents || [];
 
   /* Filter events based on excludesEvents ( a list of event ids to exclude ) */
@@ -53,8 +76,8 @@ export const EventManager = ({
   function getAllApps() {
     let appsOptionsList = [];
     apps
-      .filter((item) => item.slug != undefined)
-      .map((item) => {
+      .filter((item) => item.slug !== undefined)
+      .forEach((item) => {
         appsOptionsList.push({
           name: item.name,
           value: item.slug,
@@ -113,7 +136,7 @@ export const EventManager = ({
             <div className="col-3 p-2">
               <span>Action</span>
             </div>
-            <div className="col-9">
+            <div className="col-9 popover-action-select-search">
               <SelectSearch
                 options={actionOptions}
                 value={event.actionId}
@@ -128,16 +151,31 @@ export const EventManager = ({
           <div className="hr-text">Action options</div>
           <div>
             {event.actionId === 'show-alert' && (
-              <div className="row">
-                <div className="col-3 p-2">Message</div>
-                <div className="col-9">
-                  <CodeHinter
-                    currentState={currentState}
-                    initialValue={event.message}
-                    onChange={(value) => handlerChanged(index, 'message', value)}
-                  />
+              <>
+                <div className="row">
+                  <div className="col-3 p-2">Message</div>
+                  <div className="col-9">
+                    <CodeHinter
+                      currentState={currentState}
+                      initialValue={event.message}
+                      onChange={(value) => handlerChanged(index, 'message', value)}
+                    />
+                  </div>
                 </div>
-              </div>
+                <div className="row mt-3">
+                  <div className="col-3 p-2">Alert Type</div>
+                  <div className="col-9">
+                    <SelectSearch
+                      options={alertOptions}
+                      value={event.alertType}
+                      search={false}
+                      onChange={(value) => handlerChanged(index, 'alertType', value)}
+                      filterOptions={fuzzySearch}
+                      placeholder="Select.."
+                    />
+                  </div>
+                </div>
+              </>
             )}
 
             {event.actionId === 'open-webpage' && (
@@ -227,6 +265,33 @@ export const EventManager = ({
                   />
                 </div>
               </div>
+            )}
+
+            {event.actionId === 'set-localstorage-value' && (
+              <>
+                <div className="row">
+                  <div className="col-3 p-2">Key</div>
+                  <div className="col-9">
+                    <CodeHinter
+                      currentState={currentState}
+                      initialValue={event.key}
+                      onChange={(value) => handlerChanged(index, 'key', value)}
+                      enablePreview={true}
+                    />
+                  </div>
+                </div>
+                <div className="row mt-3">
+                  <div className="col-3 p-2">Value</div>
+                  <div className="col-9">
+                    <CodeHinter
+                      currentState={currentState}
+                      initialValue={event.value}
+                      onChange={(value) => handlerChanged(index, 'value', value)}
+                      enablePreview={true}
+                    />
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </Popover.Content>
